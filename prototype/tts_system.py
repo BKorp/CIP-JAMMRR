@@ -20,12 +20,14 @@ class TTSsys():
         # Run TTS
         # ❗ Since this model is multi-speaker and multi-lingual,
         # we must set the target speaker and the language
-        self.tts.tts_to_file(text=text,
-                             speaker=self.tts.speakers[0],
-                             language=self.tts.languages[0],
-                             file_path=output_file,
-                             emotion='happy',
-                             speed=1.5)
+        self.tts.tts_to_file(
+            text=text,
+            speaker=self.tts.speakers[0],
+            language=self.tts.languages[0],
+            file_path=output_file,
+            #  emotion='happy',
+            speed=1.5
+        )
 
         # Run local terminal audio program with .wav
         subprocess.call(['play', f'{output_file}'])

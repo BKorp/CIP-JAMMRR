@@ -1,4 +1,6 @@
 from transformers import pipeline
+from stt_system import stt_sys
+from tts_system import TTSsys
 
 
 class LanguageModelSys():
@@ -21,9 +23,14 @@ def chat_printer(inp_list):
 
 def main():
     blenderbot = LanguageModelSys('facebook/blenderbot-400M-distill', 'basic')
-    chat_printer(blenderbot.chat('what is your name?'))
-    chat_printer(blenderbot.chat('Do you like music?'))
-    chat_printer(blenderbot.chat(['hello', 'I\'m doing fine, what are you going to do today?']))
+    tts = TTSsys()
+    # chat_printer(blenderbot.chat('what is your name?'))
+    # chat_printer(blenderbot.chat('Do you like music?'))
+    # chat_printer(blenderbot.chat(['hello', 'I\'m doing fine, what are you going to do today?']))
+    # chat_printer(blenderbot.chat(stt_sys()))
+    # print(blenderbot.chat(stt_sys()))
+
+    tts.tts_runner(blenderbot.chat(stt_sys())[0])
 
 
 if __name__ == '__main__':
