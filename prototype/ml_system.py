@@ -30,11 +30,11 @@ def main():
     else:
         blenderbot = pickle.load(open(f'{bot_name}.pkl', 'rb'))
 
-    # speech_to_text = SpeechRec()
-    # inp = speech_to_text.listen()
-    inp = 'hello'
+    speech_to_text = SpeechRec()
+    inp = speech_to_text.listen()
 
-    text_to_speech(blenderbot.chat(inp)[0])
+    out = blenderbot.chat(inp)[0]
+    text_to_speech(out)
 
 
 if __name__ == '__main__':
