@@ -1,10 +1,15 @@
+import pickle
 from transformers import pipeline
-from stt_system import stt_sys
-from tts_system import TTSsys
+from stt_system import SpeechRec
+from tts_system import text_to_speech
+from pathlib import Path
 
 
 class LanguageModelSys():
-    def __init__(self, model_str: str, ml_setup: str, ml_task: str='text2text-generation') -> None:
+    def __init__(self,
+                 model_str: str,
+                 ml_setup: str,
+                 ml_task: str='text2text-generation') -> None:
         self.model_str = model_str
 
         if ml_setup == 'basic':
@@ -17,20 +22,19 @@ class LanguageModelSys():
         return pipeline(ml_task, self.model_str)
 
 
-def chat_printer(inp_list):
-    print('\n'.join(inp_list))
-
-
 def main():
-    blenderbot = LanguageModelSys('facebook/blenderbot-400M-distill', 'basic')
-    tts = TTSsys()
-    # chat_printer(blenderbot.chat('what is your name?'))
-    # chat_printer(blenderbot.chat('Do you like music?'))
-    # chat_printer(blenderbot.chat(['hello', 'I\'m doing fine, what are you going to do today?']))
-    # chat_printer(blenderbot.chat(stt_sys()))
-    # print(blenderbot.chat(stt_sys()))
+    bot_name = 'blenderbot'
+    if not Path(f'{bot_name}.pkl').is_file():
+        blenderbot = LanguageModelSys('facebook/blenderbot-400M-distill', 'basic')
+        pickle.dump(blenderbot, open(f'{bot_name}.pkl', 'wb'))
+    else:
+        blenderbot = pickle.load(open(f'{bot_name}.pkl', 'rb'))
 
-    tts.tts_runner(blenderbot.chat(stt_sys())[0])
+    # speech_to_text = SpeechRec()
+    # inp = speech_to_text.listen()
+    inp = 'hello'
+
+    text_to_speech(blenderbot.chat(inp)[0])
 
 
 if __name__ == '__main__':
