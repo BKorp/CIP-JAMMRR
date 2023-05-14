@@ -2,6 +2,7 @@ import pickle
 from transformers import pipeline
 from stt_system import SpeechRec
 from tts_system import text_to_speech
+from write_transcript import Transcriber
 from pathlib import Path
 
 
@@ -30,11 +31,17 @@ def main():
     else:
         blenderbot = pickle.load(open(f'{bot_name}.pkl', 'rb'))
 
+    script_transcriber = Transcriber()
+
     speech_to_text = SpeechRec()
     inp = speech_to_text.listen()
+    script_transcriber.update_transcription(inp, False)
 
     out = blenderbot.chat(inp)[0]
     text_to_speech(out)
+    script_transcriber.update_transcription(out)
+
+    script_transcriber.convert_to_csv()
 
 
 if __name__ == '__main__':
