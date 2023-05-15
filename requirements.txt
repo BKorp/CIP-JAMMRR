@@ -4,3 +4,4 @@ gTTS==2.3.2
 pydub==0.25.1
 torch==2.0.1
 pyaudio==0.2.13
+pandas==2.0.1

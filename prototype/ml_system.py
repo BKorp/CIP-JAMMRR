@@ -34,12 +34,12 @@ def main():
     script_transcriber = Transcriber()
 
     speech_to_text = SpeechRec()
-    inp = speech_to_text.listen()
-    script_transcriber.update_transcription(inp, False)
+    inp, timestamp = speech_to_text.listen()
+    script_transcriber.update_transcription(inp, timestamp, False)
 
     out = blenderbot.chat(inp)[0]
-    text_to_speech(out)
-    script_transcriber.update_transcription(out)
+    timestamp = text_to_speech(out)
+    script_transcriber.update_transcription(out, timestamp)
 
     script_transcriber.convert_to_csv()
 

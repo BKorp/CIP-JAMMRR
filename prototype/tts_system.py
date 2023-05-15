@@ -2,6 +2,7 @@ from gtts import gTTS
 from io import BytesIO
 from pydub import AudioSegment
 from pydub.playback import play
+from datetime import datetime
 import sys
 
 
@@ -17,7 +18,10 @@ def text_to_speech(text='Hello, how are you doing?', tld='com.au'):
     fp.seek(0)
 
     ttsaudio = AudioSegment.from_file(fp)
+    timestamp = datetime.now()
     play(ttsaudio)
+
+    return timestamp
 
 
 def main():
