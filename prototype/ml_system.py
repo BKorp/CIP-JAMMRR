@@ -34,14 +34,16 @@ def main():
     script_transcriber = Transcriber()
 
     speech_to_text = SpeechRec()
-    inp, timestamp = speech_to_text.listen()
-    script_transcriber.update_transcription(inp, timestamp, False)
 
-    out = blenderbot.chat(inp)[0]
-    timestamp = text_to_speech(out)
-    script_transcriber.update_transcription(out, timestamp)
+    while True:
+        inp, timestamp = speech_to_text.listen()
+        script_transcriber.update_transcription(inp, timestamp, False)
 
-    script_transcriber.convert_to_csv()
+        out = blenderbot.chat(inp)[0]
+        timestamp = text_to_speech(out)
+        script_transcriber.update_transcription(out, timestamp)
+
+        script_transcriber.convert_to_csv()
 
 
 if __name__ == '__main__':
