@@ -10,11 +10,9 @@ class SpeechRec():
 
         with sr.Microphone() as source:
             print('Listening...')
-            # r.pause_threshold = 1
-            self.r.energy_threshold = 3980
-            self.r.dynamic_energy_threshold = True
+            self.r.adjust_for_ambient_noise(source)
             timestamp = datetime.now()
-            audio = self.r.listen(source)
+            audio = self.r.listen(source, phrase_time_limit=5)
 
             try:
                 print('Recognizing...')
@@ -23,5 +21,5 @@ class SpeechRec():
                 # print(query.lstrip())
                 return query.lstrip(), timestamp
             except Exception as e:
-                print(e)
-
+                #print(e)
+                return self.listen()
