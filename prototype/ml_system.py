@@ -3,6 +3,7 @@ from transformers import pipeline
 from stt_system import SpeechRec
 from tts_system import text_to_speech
 from write_transcript import Transcriber
+from datetime import datetime
 from pathlib import Path
 
 
@@ -24,6 +25,8 @@ class LanguageModelSys():
 
 
 def main():
+    start_time = datetime.now()
+
     bot_name = 'blenderbot'
     if not Path(f'{bot_name}.pkl').is_file():
         blenderbot = LanguageModelSys('facebook/blenderbot-400M-distill', 'basic')
@@ -31,15 +34,15 @@ def main():
     else:
         blenderbot = pickle.load(open(f'{bot_name}.pkl', 'rb'))
 
-    script_transcriber = Transcriber()
+    script_transcriber = Transcriber(start_time)
 
     speech_to_text = SpeechRec()
-    inp, timestamp = speech_to_text.listen()
-    script_transcriber.update_transcription(inp, timestamp, False)
+    inp, inp_timestamp = speech_to_text.listen()
+    script_transcriber.update_transcription(inp, inp_timestamp, False)
 
     out = blenderbot.chat(inp)[0]
-    timestamp = text_to_speech(out)
-    script_transcriber.update_transcription(out, timestamp)
+    out_timestamp = text_to_speech(out)
+    script_transcriber.update_transcription(out, out_timestamp)
 
     script_transcriber.convert_to_csv()
 
