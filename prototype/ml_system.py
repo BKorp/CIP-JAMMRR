@@ -78,6 +78,7 @@ def main():
     thr = th.Thread(target=thread_greeter, args=(bot_state, 5), daemon=True)
     thr.start()
 
+    print('❗ JAMMRR has finished preparing! ❗')
     while True:
         while bot_state[0] == 'main':
             bot_state[-1] += 1
@@ -88,7 +89,7 @@ def main():
             script_transcriber.update_transcription(inp, timestamp, False)
 
             out = blenderbot.chat(inp)[0]
-            print('JAMMR: ', out)
+            print('\n', '🎶 JAMMRR: ', out, '🎶', '\n')
             timestamp = text_to_speech(out)
             script_transcriber.update_transcription(out, timestamp)
 
@@ -98,7 +99,7 @@ def main():
             bot_state[-1] += 1
 
             out = ModeModerator().initiate_conv()
-            print('JAMMR: ', out)
+            print('\n', '🎶 JAMMRR: ', out, '🎶', '\n')
             timestamp = text_to_speech(out)
             script_transcriber.update_transcription(out, timestamp)
 

@@ -16,6 +16,7 @@ class SpeechRec():
                 if t[0] == 'greeting':
                     return None, None
                 audio = self.r.listen(source, timeout=3, phrase_time_limit=5)
+                print('⏳ JAMMRR is trying to listen & understand... ⏳')
 
                 # print('=== Recognizing...')
                 query = self.r.recognize_google(audio, language='english')
