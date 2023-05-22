@@ -75,8 +75,8 @@ def main():
     speech_to_text = SpeechRec()
 
     bot_state = ['main', -1]
-    thr = th.Thread(target=thread_greeter, args=(bot_state, 5), daemon=True)
-    thr.start()
+    # thr = th.Thread(target=thread_greeter, args=(bot_state, 5), daemon=True)
+    # thr.start()
 
     print('❗ JAMMRR has finished preparing! ❗')
     while True:
