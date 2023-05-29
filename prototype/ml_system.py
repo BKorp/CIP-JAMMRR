@@ -1,13 +1,16 @@
 import pickle
 import pandas as pd
 from transformers import pipeline
+from transformers import T5Tokenizer, TFT5ForConditionalGeneration
 from stt_system import SpeechRec
 from tts_system import text_to_speech
 from write_transcript import Transcriber
 from datetime import datetime
 from pathlib import Path
+from dialog_tag import DialogTag
 import threading as th
 import time
+import regex as re
 
 
 class LanguageModelSys():
@@ -54,6 +57,68 @@ class ModeModerator():
         # self.tts(self._equal_rand(choice_lst))
 
 
+class DetectState():
+    def __init__(self, tokenizer, model):
+        self.tokenizer = tokenizer
+        self.model = model
+        self.dialog_tag_model = DialogTag('distilbert-base-uncased')
+
+        self.opening_statement = ['Conventional-opening']
+        self.closing_statement = ['Conventional-closing']
+        self.question = ['Wh-Question', 'Declarative Yes-No-Question', 'Backchannel in question form', 'Open-Question',
+                     'Rhetorical-Questions', 'Tag-Question', 'Declarative Wh-Question', 'Yes-No-Question']
+        self.answer = ['Yes answers', 'No answers', 'Affirmative non-yes answers', 'Negative non-no answers',
+                   'Dispreferred answers']
+
+        self.state = 'greeting'
+        self.is_question = False
+
+    def add_punctuation(self, utt):
+        """This function adds punctuation to an utterance."""
+        inp = self.tokenizer.encode("punctuate: " + utt, return_tensors="tf")
+        result = self.model.generate(inp)
+        return self.tokenizer.decode(result[0], skip_special_tokens=True)
+
+    def split_sentences(self, utt):
+        """This function splits sentences on punctuation marks (,.?)"""
+        sentence_parts = re.split('[,.?!]', utt)
+        return sentence_parts
+
+    def detect_intent(self, utt):
+        """This function detects the intent of an utterance."""
+        with_punkt = self.add_punctuation(utt)
+        sentence_parts = self.split_sentences(with_punkt)
+        intents = []
+
+        for part in sentence_parts:
+            if part != '':
+                intents.append(self.dialog_tag_model.predict_tag(part))
+
+        return intents
+
+    def detect_state(self, utt):
+        """This function detects whether an utterance is a greeting, goodbye or question
+        so that the chatbot can move to the correct state."""
+        intents = self.detect_intent(utt)
+
+        if [intent for intent in intents if intent in self.opening_statement]:
+            self.state = 'greeting'
+        elif [intent for intent in intents if intent in self.closing_statement]:
+            self.state = 'closing'
+        else:
+            self.state = 'main'
+
+        if [intent for intent in intents if intent in self.question]: # detect whether utterance is question or not
+            self.is_question = True
+        else:
+            self.is_question = False
+
+        return self.state, self.is_question
+
+    def return_state(self):
+        return self.state, self.is_question
+
+
 def thread_greeter(bot_state, n=10):
     if bot_state[-1] < 1:
         time.sleep(n)
@@ -70,23 +135,29 @@ def main():
     else:
         blenderbot = pickle.load(open(f'{bot_name}.pkl', 'rb'))
 
+    # tokenizer and model for adding punctuation to inp utterance
+    tokenizer = T5Tokenizer.from_pretrained('SJ-Ray/Re-Punctuate')
+    punkt_model = TFT5ForConditionalGeneration.from_pretrained('SJ-Ray/Re-Punctuate')
+
     script_transcriber = Transcriber(start_time)
 
     speech_to_text = SpeechRec()
 
-    bot_state = ['main', -1]
+    # bot_state = ['main', -1]
     # thr = th.Thread(target=thread_greeter, args=(bot_state, 5), daemon=True)
     # thr.start()
 
+    state_detector = DetectState(tokenizer, punkt_model)
     print('❗ JAMMRR has finished preparing! ❗')
-    while True:
-        while bot_state[0] == 'main':
-            bot_state[-1] += 1
+    bot_state, is_question = state_detector.return_state()
 
+    while True:
+        while bot_state == 'main':
             inp, timestamp = speech_to_text.listen(bot_state)
             if inp == None:
                 break
             script_transcriber.update_transcription(inp, timestamp, False)
+            bot_state, is_question = state_detector.detect_state(inp)
 
             out = blenderbot.chat(inp)[0]
             print('\n', '🎶 JAMMRR: ', out, '🎶', '\n')
@@ -95,17 +166,22 @@ def main():
 
             script_transcriber.convert_to_csv()
 
-        if bot_state[0] == 'greeting':
-            bot_state[-1] += 1
-
+        if bot_state == 'greeting':
             out = ModeModerator().initiate_conv()
             print('\n', '🎶 JAMMRR: ', out, '🎶', '\n')
             timestamp = text_to_speech(out)
             script_transcriber.update_transcription(out, timestamp)
 
             script_transcriber.convert_to_csv()
-            bot_state[0] = 'main'
+            bot_state = 'main'
 
+        if bot_state == 'closing':
+            pass
+            # end conversation
+
+        if is_question:
+            pass
+            # answer question; do not initiate new topic (before answering question)
 
 if __name__ == '__main__':
     main()

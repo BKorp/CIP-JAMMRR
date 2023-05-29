@@ -5,3 +5,4 @@ pydub==0.25.1
 torch==2.0.1
 pyaudio==0.2.13
 pandas==2.0.1
+regex==2022.10.31
