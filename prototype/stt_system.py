@@ -1,4 +1,5 @@
 import speech_recognition as sr
+import random
 from datetime import datetime
 
 
@@ -24,4 +25,10 @@ class SpeechRec():
                 return query.lstrip(), timestamp
 
             except:
+                if t == 'make_contact':
+                    return None, None
+
+                if t == 'main':
+                    return None, None
+
                 return self.listen(t)

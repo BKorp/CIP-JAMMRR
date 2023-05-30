@@ -70,7 +70,7 @@ class DetectState():
         self.answer = ['Yes answers', 'No answers', 'Affirmative non-yes answers', 'Negative non-no answers',
                    'Dispreferred answers']
 
-        self.state = 'greeting'
+        self.state = 'make_contact'
         self.is_question = False
 
     def add_punctuation(self, utt):
@@ -101,9 +101,9 @@ class DetectState():
         so that the chatbot can move to the correct state."""
         intents = self.detect_intent(utt)
 
-        if [intent for intent in intents if intent in self.opening_statement]:
-            self.state = 'greeting'
-        elif [intent for intent in intents if intent in self.closing_statement]:
+        # if [intent for intent in intents if intent in self.opening_statement]:
+        #     self.state = 'greeting'
+        if [intent for intent in intents if intent in self.closing_statement]:
             self.state = 'closing'
         else:
             self.state = 'main'
@@ -117,6 +117,10 @@ class DetectState():
 
     def return_state(self):
         return self.state, self.is_question
+
+    def update_state(self, state):
+        self.state = state
+        return self.state
 
 
 def thread_greeter(bot_state, n=10):
@@ -150,11 +154,29 @@ def main():
     state_detector = DetectState(tokenizer, punkt_model)
     print('❗ JAMMRR has finished preparing! ❗')
     bot_state, is_question = state_detector.return_state()
+    make_contact = True
 
     while True:
+        if bot_state == 'make_contact':
+            while make_contact:
+                inp, timestamp = speech_to_text.listen(bot_state)
+                if inp:
+                    make_contact = False
+                    bot_state = 'greeting'
+                    state_detector.update_state(bot_state)
+                else:
+                    out = 'Hello, is anybody there?'
+                    print('\n', '🎶 JAMMRR: ', out, '🎶', '\n')
+                    timestamp = text_to_speech(out)
+                    script_transcriber.update_transcription(out, timestamp)
+
         while bot_state == 'main':
             inp, timestamp = speech_to_text.listen(bot_state)
-            if inp == None:
+            if not inp:
+                out = 'Are you still here?'
+                print('\n', '🎶 JAMMRR: ', out, '🎶', '\n')
+                timestamp = text_to_speech(out)
+                script_transcriber.update_transcription(out, timestamp)
                 break
             script_transcriber.update_transcription(inp, timestamp, False)
             bot_state, is_question = state_detector.detect_state(inp)
@@ -165,6 +187,7 @@ def main():
             script_transcriber.update_transcription(out, timestamp)
 
             script_transcriber.convert_to_csv()
+
 
         if bot_state == 'greeting':
             out = ModeModerator().initiate_conv()
