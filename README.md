@@ -31,7 +31,7 @@ The JAMMRR chatbot is a chatbot built with the following three core tenets in mi
 
 **An overview of the chatbot architecture**
 
-![Overview of the chatbot architecture](prototype/system_overview.png)
+![Overview of the chatbot architecture](prototype/diagrams/system_overview.png)
 
 ## 1.3. Running the chatbot
 ### 1.3.1. Requirements
