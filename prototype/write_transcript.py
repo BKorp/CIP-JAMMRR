@@ -12,7 +12,8 @@ class Transcriber():
             speaker = 'JAM_OUT'
         else:
             speaker = 'SNO_IN'
-        data = [{'': self.id, 'time': timestamp, 'speaker': speaker, 'utterance': utterance}]
+        data = [{'': self.id, 'time': timestamp,
+                 'speaker': speaker, 'utterance': utterance}]
 
         updated_df = pd.concat([self.df, pd.DataFrame(data)])
         self.df = updated_df
@@ -21,5 +22,3 @@ class Transcriber():
     def convert_to_csv(self):
         fname = self.start_time.strftime('%d-%m-%Y_%H_%M_%S') + '.csv'
         self.df.to_csv(fname, index=False)
-
-

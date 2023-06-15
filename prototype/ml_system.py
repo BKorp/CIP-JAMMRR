@@ -17,16 +17,23 @@ class LanguageModelSys():
     def __init__(self,
                  model_str: str,
                  ml_setup: str,
-                 ml_task: str='text2text-generation') -> None:
+                 ml_task: str = 'text2text-generation') -> None:
         self.model_str = model_str
 
         if ml_setup == 'basic':
             self.sys = self._basic_sys(ml_task)
 
-    def chat(self, inp_sent) -> list[str]:
+    def chat(self, inp_sent: str | list[str]) -> list[str]:
+        '''Takes a string or a list of strings and returns
+        the answer of a seq2seq language model as a list.
+        '''
         return [sent['generated_text'].lstrip() for sent in self.sys(inp_sent)]
 
     def _basic_sys(self, ml_task='text2text-generation'):
+        '''Takes a machine learning task and returns
+        a Transformers pipeline for the language model
+        specified in the object's self.model_str.
+        '''
         return pipeline(ml_task, self.model_str)
 
 
@@ -34,17 +41,28 @@ class ModeModerator():
     def __init__(self) -> None:
         pass
 
-    def _equal_rand(self, choices):
+    def _equal_rand(self, choices: pd.DataFrame) -> tuple[str, pd.DataFrame]:
+        '''Returns a random choice from a given dataframe with scores.
+        It also returns an updated dataframe with new scores.
+        The choice is taken randomly from all if all scores are
+        the same, or where the score is smaller than max otherwise.
+        '''
         if len(choices.score.unique()) == 1:
             choice = choices.sent.sample().to_string(index=False)
             choices.loc[choices.sent == choice, 'score'] += 1
         else:
-            choice = choices[choices.score < choices.score.max()].sent.sample().to_string(index=False)
+            choice = choices[
+                choices.score < choices.score.max()
+            ].sent.sample().to_string(index=False)
             choices.loc[choices.sent == choice, 'score'] = choices.score.max()
 
         return choice, choices
 
-    def initiate_conv(self):
+    def initiate_conv(self) -> str:
+        '''Imports a greeting.csv with choices and scores
+        as a Dataframe and returns a random choice from
+        said dataframe.
+        '''
         f_name = 'greeting.csv'
         choices = pd.read_csv(f_name, sep='\t', names=['sent', 'score'])
         choice, choices = self._equal_rand(choices)
@@ -65,10 +83,15 @@ class DetectState():
 
         self.opening_statement = ['Conventional-opening']
         self.closing_statement = ['Conventional-closing']
-        self.question = ['Wh-Question', 'Declarative Yes-No-Question', 'Backchannel in question form', 'Open-Question',
-                     'Rhetorical-Questions', 'Tag-Question', 'Declarative Wh-Question', 'Yes-No-Question']
-        self.answer = ['Yes answers', 'No answers', 'Affirmative non-yes answers', 'Negative non-no answers',
-                   'Dispreferred answers']
+        self.question = ['Wh-Question', 'Declarative Yes-No-Question',
+                         'Backchannel in question form', 'Open-Question',
+                         'Rhetorical-Questions', 'Tag-Question',
+                         'Declarative Wh-Question', 'Yes-No-Question']
+        self.answer = ['Yes answers',
+                       'No answers',
+                       'Affirmative non-yes answers',
+                       'Negative non-no answers',
+                       'Dispreferred answers']
 
         self.state = 'make_contact'
         self.is_question = False
@@ -97,8 +120,9 @@ class DetectState():
         return intents
 
     def detect_state(self, utt):
-        """This function detects whether an utterance is a greeting, goodbye or question
-        so that the chatbot can move to the correct state."""
+        """This function detects whether an utterance is a greeting, goodbye
+        or question so that the chatbot can move to the correct state.
+        """
         intents = self.detect_intent(utt)
 
         # if [intent for intent in intents if intent in self.opening_statement]:
@@ -108,7 +132,7 @@ class DetectState():
         else:
             self.state = 'main'
 
-        if [intent for intent in intents if intent in self.question]: # detect whether utterance is question or not
+        if [intent for intent in intents if intent in self.question]:  # detect whether utterance is question or not
             self.is_question = True
         else:
             self.is_question = False
@@ -123,10 +147,10 @@ class DetectState():
         return self.state
 
 
-def thread_greeter(bot_state, n=10):
-    if bot_state[-1] < 1:
-        time.sleep(n)
-        bot_state[0] = 'greeting'
+# def thread_greeter(bot_state, n=10):
+#     if bot_state[-1] < 1:
+#         time.sleep(n)
+#         bot_state[0] = 'greeting'
 
 
 def main():
@@ -134,14 +158,17 @@ def main():
 
     bot_name = 'blenderbot'
     if not Path(f'{bot_name}.pkl').is_file():
-        blenderbot = LanguageModelSys('facebook/blenderbot-400M-distill', 'basic')
+        blenderbot = LanguageModelSys('facebook/blenderbot-400M-distill',
+                                      'basic')
         pickle.dump(blenderbot, open(f'{bot_name}.pkl', 'wb'))
     else:
         blenderbot = pickle.load(open(f'{bot_name}.pkl', 'rb'))
 
     # tokenizer and model for adding punctuation to inp utterance
     tokenizer = T5Tokenizer.from_pretrained('SJ-Ray/Re-Punctuate')
-    punkt_model = TFT5ForConditionalGeneration.from_pretrained('SJ-Ray/Re-Punctuate')
+    punkt_model = TFT5ForConditionalGeneration.from_pretrained(
+        'SJ-Ray/Re-Punctuate'
+    )
 
     script_transcriber = Transcriber(start_time)
 
@@ -188,7 +215,6 @@ def main():
 
             script_transcriber.convert_to_csv()
 
-
         if bot_state == 'greeting':
             out = ModeModerator().initiate_conv()
             print('\n', '🎶 JAMMRR: ', out, '🎶', '\n')
@@ -204,7 +230,9 @@ def main():
 
         if is_question:
             pass
-            # answer question; do not initiate new topic (before answering question)
+            # answer question;
+            # do not initiate new topic (before answering question)
+
 
 if __name__ == '__main__':
     main()

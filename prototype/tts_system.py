@@ -6,7 +6,12 @@ from datetime import datetime
 import sys
 
 
-def text_to_speech(text='Hello, how are you doing?', tld='com.au'):
+def text_to_speech(text: str = 'Hello, how are you doing?',
+                   tld: str = 'com.au') -> str:
+    '''Converts a given string to audio using a given top level domain
+    to set the accent of the english audio output.
+    Returns a timestamp of the time of utterance.
+    '''
     tld_list = ['com.au', 'us']
     if tld in tld_list:
         tts = gTTS(text, tld='com.au', lang_check=False)
