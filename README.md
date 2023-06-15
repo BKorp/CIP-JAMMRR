@@ -35,17 +35,19 @@ The JAMMRR chatbot is a chatbot built with the following three core tenets in mi
 
 ## 1.3. Running the chatbot
 ### 1.3.1. Requirements
+Tested on `Python 3.11.3`, but anything close to that is likely to work as well.
+
 To run the chatbot, one is required to install a small number of packages which can be found in `requirements.txt`.
 This can be used as follows:
 
 First, we recommend the creation of a virtual environment:
 ```bash
-pip -m venv cip_jammrr
+python -m venv env-cip_jammrr --upgrade-deps
 ```
 
 Following this, one can move into the virtual environment and install the requirements:
 ```bash
-source cip_jammrr/bin/activate
+source env-cip_jammrr/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -63,7 +65,12 @@ python ml_system.py
 2. Once the startup is finished, JAMMRR will start listening for input.
 3. If no input is given, the current system will try to ask whether anyone is there, waiting for input from the conversational partner.
 4. Once input is given, the chatbot will give a random greeting to its conversational partner.
-5.Afterwards, the chatbot makes use of te language model to generate responses to given input.
+5. Afterwards, the chatbot makes use of te language model to generate responses to given input.
 
 ### 1.3.3. Turning off the chatbot
-As an explicit stop functionality has not been implemented for this version of the chatbot, one can stop the programme through the use of `multiple SIGINT signals (Ctrl + c), usually 2`.
+As an explicit stop functionality has not been implemented for this version of the chatbot, one can stop the program through the use of a `SIGINT signal (Ctrl + c)`.
+
+Once finished you can deactivate the virtual environment:
+```bash
+deactivate
+```
