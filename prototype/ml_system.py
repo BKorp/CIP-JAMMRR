@@ -8,8 +8,6 @@ from write_transcript import Transcriber
 from datetime import datetime
 from pathlib import Path
 from dialog_tag import DialogTag
-import threading as th
-import time
 import regex as re
 
 
@@ -109,11 +107,13 @@ class DetectState():
 
     def detect_intent(self, utt):
         """This function detects the intent of an utterance."""
+        # split utterance into different sentences, as one
+        # utterance may contain multiple dialogue acts
         with_punkt = self.add_punctuation(utt)
         sentence_parts = self.split_sentences(with_punkt)
         intents = []
 
-        for part in sentence_parts:
+        for part in sentence_parts:    # detect intent of every sentence part
             if part != '':
                 intents.append(self.dialog_tag_model.predict_tag(part))
 
@@ -125,14 +125,17 @@ class DetectState():
         """
         intents = self.detect_intent(utt)
 
-        # if [intent for intent in intents if intent in self.opening_statement]:
+        # detect which state the chatbot should move to based on the
+        # intent of the utterance of the other party
+        #if [intent for intent in intents if intent in self.opening_statement]:
         #     self.state = 'greeting'
         if [intent for intent in intents if intent in self.closing_statement]:
             self.state = 'closing'
         else:
             self.state = 'main'
 
-        if [intent for intent in intents if intent in self.question]:  # detect whether utterance is question or not
+        # detect whether utterance by the other party is a question or not
+        if [intent for intent in intents if intent in self.question]:
             self.is_question = True
         else:
             self.is_question = False
@@ -140,9 +143,11 @@ class DetectState():
         return self.state, self.is_question
 
     def return_state(self):
+        """This function returns the current state of the system."""
         return self.state, self.is_question
 
     def update_state(self, state):
+        """This function updates the state of the system."""
         self.state = state
         return self.state
 
@@ -154,6 +159,7 @@ class DetectState():
 
 
 def main():
+    # save the start time of the conversation for the transcript filename
     start_time = datetime.now()
 
     bot_name = 'blenderbot'
