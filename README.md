@@ -57,8 +57,8 @@ pip install -r requirements.txt
 As highlighted in [section 1.2.2.](#122-the-chatbot), the JAMMRR chatbot makes use of STT and TTS. Interaction with the chatbot is performed through the use of a microphone and speakers (or any other kind of input and output system for sound).
 
 There are two versions of the JAMMRR chatbot within this repository:
-1. [Battle](#1321-battle) is the chatbot as it was used during the chatbot battle, with the addition of comments, changes to conform to the pep8 standard, and a small bugfix for SIGINT to stop the program.
-2. [Prototype](#1322-prototype) is the chatbot as it was intended, with some bugs in place for the systems that were turned off during the battle. Here too with the addition of comments, changes to conform to the pep8 standard, and a small bugfix for SIGINT to stop the program.
+1. [Battle](#1321-battle) is the chatbot as it was used during the chatbot battle, with the addition of comments, changes to conform to the pep8 standard, and a small bugfix for SIGINT to stop the program. Some aspects that are found in the prototype version are missing here.
+2. [Prototype](#1322-prototype) is the chatbot as it was prepared before the battle, with some bugs in place for the systems that were turned off during the battle. Here too with the addition of comments, changes to conform to the pep8 standard, and a small bugfix for SIGINT to stop the program.
 
 #### 1.3.2.1. Battle
 The program can be started by moving into the `battle` folder and using Python to run `ml_system.py`:
