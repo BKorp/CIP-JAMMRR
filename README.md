@@ -10,6 +10,8 @@
   - [1.3. Running the chatbot](#13-running-the-chatbot)
     - [1.3.1. Requirements](#131-requirements)
     - [1.3.2. Using the chatbot](#132-using-the-chatbot)
+      - [1.3.2.1. Battle](#1321-battle)
+      - [1.3.2.2. Prototype](#1322-prototype)
     - [1.3.3. Turning off the chatbot](#133-turning-off-the-chatbot)
 
 ## 1.2. General
@@ -54,6 +56,24 @@ pip install -r requirements.txt
 ### 1.3.2. Using the chatbot
 As highlighted in [section 1.2.2.](#122-the-chatbot), the JAMMRR chatbot makes use of STT and TTS. Interaction with the chatbot is performed through the use of a microphone and speakers (or any other kind of input and output system for sound).
 
+There are two versions of the JAMMRR chatbot within this repository:
+1. [Battle](#1321-battle) is the chatbot as it was used during the chatbot battle, with the addition of comments, changes to conform to the pep8 standard, and a small bugfix for SIGINT to stop the program.
+2. [Prototype](#1322-prototype) is the chatbot as it was intended, with some bugs in place for the systems that were turned off during the battle. Here too with the addition of comments, changes to conform to the pep8 standard, and a small bugfix for SIGINT to stop the program.
+
+#### 1.3.2.1. Battle
+The program can be started by moving into the `battle` folder and using Python to run `ml_system.py`:
+```bash
+cd battle
+python ml_system.py
+```
+
+**On runtime:**
+1. After startup, JAMMRR will start by preparing the systems that will be used during its runtime (such as the language model).
+2. Once the startup is finished, JAMMRR will start listening for input.
+3. The chatbot makes use of the language model to generate responses for a given input.
+4. When finished, the chatbot can be [`deactivated`](#133-turning-off-the-chatbot)`.
+
+#### 1.3.2.2. Prototype
 The program can be started by moving into the `prototype` folder and using Python to run `ml_system.py`:
 ```bash
 cd prototype
@@ -65,7 +85,8 @@ python ml_system.py
 2. Once the startup is finished, JAMMRR will start listening for input.
 3. If no input is given, the current system will try to ask whether anyone is there, waiting for input from the conversational partner.
 4. Once input is given, the chatbot will give a random greeting to its conversational partner.
-5. Afterwards, the chatbot makes use of te language model to generate responses to given input.
+5. Afterwards, the chatbot makes use of the language model to generate responses for a given input.
+6. When finished, the chatbot can be [`deactivated`](#133-turning-off-the-chatbot)`.
 
 ### 1.3.3. Turning off the chatbot
 As an explicit stop functionality has not been implemented for this version of the chatbot, one can stop the program through the use of a `SIGINT signal (Ctrl + c)`.
