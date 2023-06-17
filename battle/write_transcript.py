@@ -8,6 +8,9 @@ class Transcriber():
         self.start_time = start_time
 
     def update_transcription(self, utterance, timestamp, jammr=True):
+        """This function updates the transcript when
+        an utterance is produced by JAMMR or SNOOP by
+        adding it to a Pandas DataFrame."""
         if jammr:
             speaker = 'JAM_OUT'
         else:
@@ -19,6 +22,9 @@ class Transcriber():
         self.id += 1
 
     def convert_to_csv(self):
+        """This function converts the transcript of the
+        conversation that is stored in a Pandas DataFrame
+        to a CSV file"""
         fname = self.start_time.strftime('%d-%m-%Y_%H_%M_%S') + '.csv'
         self.df.to_csv(fname, index=False)
 

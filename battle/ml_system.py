@@ -23,10 +23,17 @@ class LanguageModelSys():
         if ml_setup == 'basic':
             self.sys = self._basic_sys(ml_task)
 
-    def chat(self, inp_sent) -> list[str]:
+    def chat(self, inp_sent: str | list[str]) -> list[str]:
+        '''Takes a string or a list of strings and returns
+        the answer of a seq2seq language model as a list.
+        '''
         return [sent['generated_text'].lstrip() for sent in self.sys(inp_sent)]
 
     def _basic_sys(self, ml_task='text2text-generation'):
+        '''Takes a machine learning task and returns
+        a Transformers pipeline for the language model
+        specified in the object's self.model_str.
+        '''
         return pipeline(ml_task, self.model_str)
 
 
@@ -34,7 +41,12 @@ class ModeModerator():
     def __init__(self) -> None:
         pass
 
-    def _equal_rand(self, choices):
+    def _equal_rand(self, choices: pd.DataFrame) -> tuple[str, pd.DataFrame]:
+        '''Returns a random choice from a given dataframe with scores.
+        It also returns an updated dataframe with new scores.
+        The choice is taken randomly from all if all scores are
+        the same, or where the score is smaller than max otherwise.
+        '''
         if len(choices.score.unique()) == 1:
             choice = choices.sent.sample().to_string(index=False)
             choices.loc[choices.sent == choice, 'score'] += 1
@@ -44,7 +56,11 @@ class ModeModerator():
 
         return choice, choices
 
-    def initiate_conv(self):
+    def initiate_conv(self) -> str:
+        '''Imports a greeting.csv with choices and scores
+        as a Dataframe and returns a random choice from
+        said dataframe.
+        '''
         f_name = 'greeting.csv'
         choices = pd.read_csv(f_name, sep='\t', names=['sent', 'score'])
         choice, choices = self._equal_rand(choices)
