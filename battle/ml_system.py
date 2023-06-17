@@ -17,7 +17,7 @@ class LanguageModelSys():
     def __init__(self,
                  model_str: str,
                  ml_setup: str,
-                 ml_task: str='text2text-generation') -> None:
+                 ml_task: str = 'text2text-generation') -> None:
         self.model_str = model_str
 
         if ml_setup == 'basic':
@@ -51,7 +51,9 @@ class ModeModerator():
             choice = choices.sent.sample().to_string(index=False)
             choices.loc[choices.sent == choice, 'score'] += 1
         else:
-            choice = choices[choices.score < choices.score.max()].sent.sample().to_string(index=False)
+            choice = choices[
+                choices.score < choices.score.max()
+            ].sent.sample().to_string(index=False)
             choices.loc[choices.sent == choice, 'score'] = choices.score.max()
 
         return choice, choices
@@ -81,10 +83,13 @@ class DetectState():
 
         self.opening_statement = ['Conventional-opening']
         self.closing_statement = ['Conventional-closing']
-        self.question = ['Wh-Question', 'Declarative Yes-No-Question', 'Backchannel in question form', 'Open-Question',
-                     'Rhetorical-Questions', 'Tag-Question', 'Declarative Wh-Question', 'Yes-No-Question']
-        self.answer = ['Yes answers', 'No answers', 'Affirmative non-yes answers', 'Negative non-no answers',
-                   'Dispreferred answers']
+        self.question = ['Wh-Question', 'Declarative Yes-No-Question',
+                         'Backchannel in question form', 'Open-Question',
+                         'Rhetorical-Questions', 'Tag-Question',
+                         'Declarative Wh-Question', 'Yes-No-Question']
+        self.answer = ['Yes answers', 'No answers',
+                       'Affirmative non-yes answers', 'Negative non-no answers',
+                       'Dispreferred answers']
 
         self.state = 'main'
         self.is_question = False
@@ -113,8 +118,9 @@ class DetectState():
         return intents
 
     def detect_state(self, utt):
-        """This function detects whether an utterance is a greeting, goodbye or question
-        so that the chatbot can move to the correct state."""
+        """This function detects whether an utterance
+        is a greeting, goodbye or question so that
+        the chatbot can move to the correct state."""
         intents = self.detect_intent(utt)
 
         # if [intent for intent in intents if intent in self.opening_statement]:
@@ -124,7 +130,7 @@ class DetectState():
         else:
             self.state = 'main'
 
-        if [intent for intent in intents if intent in self.question]: # detect whether utterance is question or not
+        if [intent for intent in intents if intent in self.question]:  # detect whether utterance is question or not
             self.is_question = True
         else:
             self.is_question = False
@@ -150,14 +156,18 @@ def main():
 
     bot_name = 'blenderbot'
     if not Path(f'{bot_name}.pkl').is_file():
-        blenderbot = LanguageModelSys('facebook/blenderbot-400M-distill', 'basic')
+        blenderbot = LanguageModelSys(
+            'facebook/blenderbot-400M-distill', 'basic'
+        )
         pickle.dump(blenderbot, open(f'{bot_name}.pkl', 'wb'))
     else:
         blenderbot = pickle.load(open(f'{bot_name}.pkl', 'rb'))
 
     # tokenizer and model for adding punctuation to inp utterance
     tokenizer = T5Tokenizer.from_pretrained('SJ-Ray/Re-Punctuate')
-    punkt_model = TFT5ForConditionalGeneration.from_pretrained('SJ-Ray/Re-Punctuate')
+    punkt_model = TFT5ForConditionalGeneration.from_pretrained(
+        'SJ-Ray/Re-Punctuate'
+    )
 
     script_transcriber = Transcriber(start_time)
 
@@ -204,7 +214,6 @@ def main():
 
             script_transcriber.convert_to_csv()
 
-
         if bot_state == 'greeting':
             out = ModeModerator().initiate_conv()
             print('\n', '🎶 JAMMRR: ', out, '🎶', '\n')
@@ -227,7 +236,9 @@ def main():
 
         if is_question:
             pass
-            # answer question; do not initiate new topic (before answering question)
+            # answer question; do not initiate
+            # new topic (before answering question)
+
 
 if __name__ == '__main__':
     main()
